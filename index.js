@@ -6,44 +6,63 @@
 (function() {
   window.node = { init, require, global: {} };
 
+  window.node.global.process = {};
+
   require.base = '.';
   require.cache = {};
+  const builtInModules = ['path'];
 
   function init({ base }) {
     require.base = base;
-
-    const fileContent = syncLoadFile(base + '/lib/path.js');
-    handleCMDFile(base + '/lib/path.js', fileContent);
+    builtInModules.forEach(loadBuiltInModules);
   }
 
-  function require(filePath) {
-    if (require.cache[filePath]) {
-      return require.cache[filePath].exports;
+  function loadBuiltInModules(moduleName) {
+    const fileContent = syncLoadFile(
+      require.base + '/node-built-in/' + moduleName + '.js'
+    );
+    const moduleFn = new Function('exports', 'require', 'module', fileContent);
+    require.cache[moduleName] = { exports: {} };
+
+    moduleFn(
+      require.cache[moduleName].exports,
+      require,
+      require.cache[moduleName]
+    );
+  }
+
+  function require(filename) {
+    if (builtInModules.includes(filename)) {
+      return require.cache[filename].exports;
     }
 
-    const path = require.cache[require.base + '/lib/path.js'].exports;
-    if (filePath.indexOf('.') === 0) {
+    if (require.cache[filename]) {
+      return require.cache[filename].exports;
+    }
+
+    const path = require.cache.path.exports;
+    if (filename.indexOf('.') === 0) {
       // relative path
     } else {
       // require from 'node_modules'
-      if (path.extname(filePath) === '.js') {
+      if (path.extname(filename) === '.js') {
         // just require that file
-        filePath = path.join(require.base, 'node_modules', filePath);
+        filename = path.join(require.base, 'node_modules', filename);
       } else {
-        const jsonPath = path.join(
+        const jsonFilename = path.join(
           require.base,
           'node_modules',
-          filePath,
+          filename,
           'package.json'
         );
-        const jsonContent = syncLoadFile(jsonPath);
-        const { main } = handleJSONFile(jsonPath, jsonContent);
-        filePath = path.join(require.base, 'node_modules', filePath, main);
+        const jsonContent = syncLoadFile(jsonFilename);
+        const { main } = handleJSONFile(jsonFilename, jsonContent);
+        filename = path.join(require.base, 'node_modules', filename, main);
       }
     }
 
-    const fileContent = syncLoadFile(filePath);
-    return handleCMDFile(filePath, fileContent);
+    const fileContent = syncLoadFile(filename);
+    return handleCMDFile(filename, fileContent);
   }
 
   function syncLoadFile(filePath) {
@@ -58,31 +77,31 @@
     throw new Error('Load file error: ' + filePath);
   }
 
-  function handleCMDFile(filePath, fileContent) {
+  function handleCMDFile(filename, fileContent) {
     const moduleFn = new Function(
-      'module',
       'exports',
       'require',
-      '__dirname',
+      'module',
       '__filename',
-      'process',
+      '__dirname',
       'global',
+      'process',
       fileContent
     );
-    require.cache[filePath] = { exports: {} };
+    require.cache[filename] = { exports: {} };
 
-    const path = require.cache[require.base + '/lib/path.js'].exports;
+    const path = require.cache.path.exports;
 
     moduleFn(
-      require.cache[filePath],
-      require.cache[filePath].exports,
+      require.cache[filename].exports,
       require,
-      path.dirname(filePath),
-      filePath,
-      {},
-      window.node.global
+      require.cache[filename],
+      filename,
+      path.dirname(filename),
+      window.node.global,
+      window.node.global.process
     );
-    return require.cache[filePath].exports;
+    return require.cache[filename].exports;
   }
 
   function handleJSONFile(filePath, fileContent) {
