@@ -10,7 +10,7 @@
 
   require.base = '.';
   require.cache = {};
-  const builtInModules = ['path'];
+  const builtInModules = ['fs', 'path'];
 
   function init({ base }) {
     require.base = base;
@@ -18,66 +18,87 @@
   }
 
   function loadBuiltInModules(moduleName) {
-    const fileContent = syncLoadFile(
-      require.base + '/node-built-in/' + moduleName + '.js'
+    const fileContent = loadFileSync('../node-built-in/' + moduleName + '.js');
+    const moduleFn = new Function(
+      'exports',
+      'require',
+      'module',
+      'loadFileSync',
+      fileContent
     );
-    const moduleFn = new Function('exports', 'require', 'module', fileContent);
+    if (require.cache[moduleName]) {
+      throw new Error('loadBuiltInModules again');
+    }
     require.cache[moduleName] = { exports: {} };
 
     moduleFn(
       require.cache[moduleName].exports,
       require,
-      require.cache[moduleName]
+      require.cache[moduleName],
+      loadFileSync
     );
   }
 
-  function require(filename) {
+  function require(filename, fromDirName = require.base) {
     if (builtInModules.includes(filename)) {
       return require.cache[filename].exports;
     }
 
-    if (require.cache[filename]) {
-      return require.cache[filename].exports;
-    }
-
     const path = require.cache.path.exports;
-    if (filename.indexOf('.') === 0) {
+    const fs = require.cache.fs.exports;
+    let actualFilename = filename;
+
+    if (filename.startsWith('.')) {
       // relative path
+      actualFilename = path.join(fromDirName, filename);
     } else {
       // require from 'node_modules'
-      if (path.extname(filename) === '.js') {
-        // just require that file
-        filename = path.join(require.base, 'node_modules', filename);
-      } else {
-        const jsonFilename = path.join(
-          require.base,
-          'node_modules',
-          filename,
-          'package.json'
-        );
-        const jsonContent = syncLoadFile(jsonFilename);
-        const { main } = handleJSONFile(jsonFilename, jsonContent);
-        filename = path.join(require.base, 'node_modules', filename, main);
+      actualFilename = path.join(require.base, 'node_modules', filename);
+      if (
+        path.extname(actualFilename) !== '.js' &&
+        fs.fileExistsSync(actualFilename + '/package.json')
+      ) {
+        const jsonFilename = actualFilename + '/package.json';
+        const jsonContent = fs.readFileSync(jsonFilename);
+        const json = handleJSONFile(jsonFilename, jsonContent);
+        // browser > main > files[0]
+        let entry = json.browser || json.main || (json.files && json.files[0]);
+        actualFilename = path.join(actualFilename, entry);
       }
     }
 
-    const fileContent = syncLoadFile(filename);
-    return handleCMDFile(filename, fileContent);
-  }
-
-  function syncLoadFile(filePath) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', filePath, false);
-    xhr.setRequestHeader('Content-Type', 'application/text');
-    xhr.setRequestHeader('Accept', 'text/plain');
-    xhr.send();
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      return xhr.responseText;
+    // self > .js > /index.js > .json
+    if (
+      path.extname(actualFilename) === '.js' ||
+      path.extname(actualFilename) === '.json'
+    ) {
+      // ok
+    } else if (fs.fileExistsSync(actualFilename + '.js')) {
+      actualFilename = actualFilename + '.js';
+    } else if (fs.fileExistsSync(actualFilename + '.json')) {
+      actualFilename = actualFilename + '.json';
+    } else if (fs.fileExistsSync(actualFilename + '/index.js')) {
+      actualFilename = actualFilename + '/index.js';
+    } else {
+      throw new Error(
+        'Resolve file error: ' + filename + ' as ' + actualFilename
+      );
     }
-    throw new Error('Load file error: ' + filePath);
+
+    if (require.cache[actualFilename]) {
+      return require.cache[actualFilename].exports;
+    }
+
+    const fileContent = fs.readFileSync(actualFilename);
+    const extname = path.extname(actualFilename);
+    if (extname === '.js') {
+      return handleJSFile(actualFilename, fileContent);
+    } else if (extname === '.json') {
+      return handleJSONFile(actualFilename, fileContent);
+    }
   }
 
-  function handleCMDFile(filename, fileContent) {
+  function handleJSFile(filename, fileContent) {
     const moduleFn = new Function(
       'exports',
       'require',
@@ -88,13 +109,23 @@
       'process',
       fileContent
     );
+
+    if (require.cache[filename]) {
+      throw new Error('Load file again');
+    }
     require.cache[filename] = { exports: {} };
 
     const path = require.cache.path.exports;
 
+    function moduleRequire(requireFilename) {
+      return require(requireFilename, path.dirname(filename));
+    }
+
+    moduleRequire.cache = require.cache;
+
     moduleFn(
       require.cache[filename].exports,
-      require,
+      moduleRequire,
       require.cache[filename],
       filename,
       path.dirname(filename),
@@ -108,5 +139,17 @@
     const json = JSON.parse(fileContent);
     require.cache[filePath] = { exports: json };
     return json;
+  }
+
+  function loadFileSync(filename) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', filename, false);
+    xhr.setRequestHeader('Content-Type', 'application/text');
+    xhr.setRequestHeader('Accept', 'text/plain');
+    xhr.send();
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      return xhr.responseText;
+    }
+    throw new Error(xhr.statusText);
   }
 })();
