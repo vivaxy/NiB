@@ -18,7 +18,9 @@
   }
 
   function loadBuiltInModules(moduleName) {
-    const fileContent = loadFileSync('../node-built-in/' + moduleName + '.js');
+    const fileContent = loadFileSync(
+      require.base + '/node-built-in/' + moduleName + '.js'
+    );
     const moduleFn = new Function(
       'exports',
       'require',
