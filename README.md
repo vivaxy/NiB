@@ -14,3 +14,7 @@ Run Node.js modules in browser environment.
 [license-url]: LICENSE
 [standard-version-image]: https://img.shields.io/badge/release-standard%20version-brightgreen.svg?style=flat-square
 [standard-version-url]: https://github.com/conventional-changelog/standard-version
+
+## Demo/Test
+
+[Link](https://vivaxy.github.io/NiB/__test__/index.html)
