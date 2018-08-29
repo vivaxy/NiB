@@ -40,3 +40,9 @@ assert(
 
 const dirIndex = require('./dirname');
 assert(dirIndex.a === 1, 'Load local dirname');
+
+const packageJSONMainWithoutExt = require('xtend');
+assert(
+  typeof packageJSONMainWithoutExt === 'function',
+  'Load node modules with package.json.main but without extension'
+);
