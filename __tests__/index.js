@@ -14,6 +14,7 @@ assert(
 const withoutExt = require('./without-ext');
 assert(withoutExt === 1, 'Load local js files without extension.');
 
+require('core-js/es7/observable.js');
 const streamToObservable = require('@samverschueren/stream-to-observable');
 assert(typeof streamToObservable === 'function', 'Load scoped node modules.');
 
@@ -44,5 +45,11 @@ assert(dirIndex.a === 1, 'Load local dirname');
 const packageJSONMainWithoutExt = require('xtend');
 assert(
   typeof packageJSONMainWithoutExt === 'function',
-  'Load node modules with package.json.main but without extension'
+  'Load node modules with package.json main field but without extension'
+);
+
+const packageJSONBrowserObject = require('postcss');
+assert(
+  packageJSONBrowserObject,
+  'Load node modules with package.json browser field'
 );

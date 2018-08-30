@@ -63,32 +63,98 @@
         const jsonFilename = actualFilename + '/package.json';
         const jsonContent = fs.readFileSync(jsonFilename);
         const json = handleJSONFile(jsonFilename, jsonContent);
-        // browser > main > files[0]
-        let entry = json.browser || json.main || (json.files && json.files[0]);
+        /**
+         * browser > main > files[0]
+         * @see https://github.com/defunctzombie/package-browser-field-spec
+         */
+        const entry =
+          (typeof json.browser === 'string' && json.browser) ||
+          json.main ||
+          (json.files && json.files[0]);
         actualFilename = path.join(actualFilename, entry);
       }
     }
 
     // self > .js > /index.js > .json
-    if (
-      path.extname(actualFilename) === '.js' ||
-      path.extname(actualFilename) === '.json'
-    ) {
-      // ok
-    } else if (fs.fileExistsSync(actualFilename + '.js')) {
-      actualFilename = actualFilename + '.js';
-    } else if (fs.fileExistsSync(actualFilename + '.json')) {
-      actualFilename = actualFilename + '.json';
-    } else if (fs.fileExistsSync(actualFilename + '/index.js')) {
-      actualFilename = actualFilename + '/index.js';
-    } else {
-      throw new Error(
-        'Resolve file error: ' + filename + ' as ' + actualFilename
-      );
-    }
+    actualFilename = tryAppendExtension(actualFilename);
 
     if (require.cache[actualFilename]) {
       return require.cache[actualFilename].exports;
+    }
+
+    /**
+     * implement package.json browser field
+     * @see https://github.com/defunctzombie/package-browser-field-spec
+     */
+    const requireNodeModuleFromNodeModules =
+      !filename.startsWith('.') && fromDirName.includes('/node_modules/');
+    if (
+      actualFilename.includes('/node_modules/') ||
+      requireNodeModuleFromNodeModules
+    ) {
+      let searchPackagePath = null;
+      if (requireNodeModuleFromNodeModules) {
+        searchPackagePath = fromDirName;
+      } else {
+        searchPackagePath = actualFilename;
+      }
+      const filenameSplitted = searchPackagePath.split('/');
+      const nodeModulesIndex = filenameSplitted.indexOf('node_modules');
+      let index = nodeModulesIndex + 1;
+      let packageName = filenameSplitted[index];
+      if (packageName.startsWith('@')) {
+        index++;
+        packageName += '/' + filenameSplitted[index];
+      }
+      const relativeFilePath =
+        './' + filenameSplitted.slice(index + 1).join('/');
+      const packageRootPath = filenameSplitted.slice(0, index + 1).join('/');
+      const jsonFilename = packageRootPath + '/package.json';
+      const jsonContent = fs.readFileSync(jsonFilename);
+      const json = handleJSONFile(jsonFilename, jsonContent);
+      if (typeof json.browser === 'object') {
+        const relativeFilePathExt = path.extname(relativeFilePath);
+        const relativeFilePathWithoutExt = relativeFilePath.slice(
+          0,
+          -relativeFilePathExt.length
+        );
+        if (
+          typeof json.browser[relativeFilePath] === 'string' ||
+          typeof json.browser[relativeFilePathWithoutExt] === 'string'
+        ) {
+          /**
+           * "browser": {
+           *   "./test": "./test-shim"
+           * }
+           */
+          actualFilename = path.join(
+            packageRootPath,
+            json.browser[relativeFilePath]
+          );
+          actualFilename = tryAppendExtension(actualFilename);
+          // continue
+        } else if (
+          requireNodeModuleFromNodeModules &&
+          json.browser[filename] === false
+        ) {
+          /**
+           * "browser": {
+           *   "fs": false
+           * }
+           */
+          return {}; // do not cache, maybe conflict
+        } else if (
+          json.browser[relativeFilePath] === false ||
+          json.browser[relativeFilePathWithoutExt] === false
+        ) {
+          /**
+           * "browser": {
+           *   "./test": false
+           * }
+           */
+          return handleJSONFile(actualFilename, '{}');
+        }
+      }
     }
 
     const fileContent = fs.readFileSync(actualFilename);
@@ -97,6 +163,27 @@
       return handleJSFile(actualFilename, fileContent);
     } else if (extname === '.json') {
       return handleJSONFile(actualFilename, fileContent);
+    }
+
+    function tryAppendExtension(filePath) {
+      // self > .js > /index.js > .json
+      if (
+        path.extname(filePath) === '.js' ||
+        path.extname(filePath) === '.json'
+      ) {
+        // ok
+        return filePath;
+      }
+      if (fs.fileExistsSync(filePath + '.js')) {
+        return filePath + '.js';
+      }
+      if (fs.fileExistsSync(filePath + '.json')) {
+        return filePath + '.json';
+      }
+      if (fs.fileExistsSync(filePath + '/index.js')) {
+        return filePath + '/index.js';
+      }
+      throw new Error('Resolve file error: ' + filePath);
     }
   }
 
@@ -151,6 +238,8 @@
     xhr.send();
     if (xhr.readyState === 4 && xhr.status === 200) {
       return xhr.responseText;
+    } else if (xhr.readyState === 4 && xhr.status !== 200) {
+      debugger;
     }
     throw new Error(xhr.statusText);
   }

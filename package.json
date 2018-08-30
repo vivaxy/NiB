@@ -26,8 +26,10 @@
     ]
   },
   "devDependencies": {
+    "core-js": "^2.5.7",
     "husky": "^0.14.3",
     "lint-staged": "^7.2.2",
+    "postcss": "^7.0.2",
     "prettier": "^1.14.2",
     "standard-version": "^4.4.0"
   }
