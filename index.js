@@ -196,7 +196,7 @@
       '__dirname',
       'global',
       'process',
-      fileContent
+      fileContent + '\n//# sourceURL=NiB:///' + filename
     );
 
     if (require.cache[filename]) {
@@ -239,7 +239,7 @@
     if (xhr.readyState === 4 && xhr.status === 200) {
       return xhr.responseText;
     } else if (xhr.readyState === 4 && xhr.status !== 200) {
-      debugger;
+      // debugger;
     }
     throw new Error(xhr.statusText);
   }
