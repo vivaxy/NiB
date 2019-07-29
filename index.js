@@ -9,17 +9,22 @@
   window.node.global.process = {};
 
   require.base = '.';
+  require.nodeBuiltInBase = 'node_modules/@vivaxy/nib';
   require.cache = {};
   const builtInModules = ['fs', 'path'];
 
-  function init({ base }) {
+  function init({
+    base = require.base,
+    nodeBuiltInBase = require.nodeBuiltInBase,
+  } = {}) {
     require.base = base;
+    require.nodeBuiltInBase = nodeBuiltInBase;
     builtInModules.forEach(loadBuiltInModules);
   }
 
   function loadBuiltInModules(moduleName) {
     const fileContent = loadFileSync(
-      require.base + '/node-built-in/' + moduleName + '.js'
+      require.nodeBuiltInBase + '/node-built-in/' + moduleName + '.js'
     );
     const moduleFn = new Function(
       'exports',
