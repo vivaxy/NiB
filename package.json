@@ -1,6 +1,6 @@
 {
   "name": "@vivaxy/nib",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Run Node.js modules in browser environment.",
   "keywords": [
     "node-in-browser",
