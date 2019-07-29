@@ -2,7 +2,19 @@
   "name": "@vivaxy/nib",
   "version": "0.1.0",
   "description": "Run Node.js modules in browser environment.",
+  "keywords": [
+    "node-in-browser",
+    "nib",
+    "node",
+    "commonjs",
+    "require",
+    "module.exports",
+    "module",
+    "exports",
+    "browser"
+  ],
   "main": "index.js",
+  "browser": "index.js",
   "scripts": {
     "release:beta": "standard-version --prerelease beta && npm publish --tag beta && git push --follow-tags",
     "release": "standard-version && npm publish && git push --follow-tags",
