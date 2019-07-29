@@ -1,12 +1,11 @@
 {
-  "name": "nib",
+  "name": "@vivaxy/nib",
   "version": "0.0.0",
   "description": "Run Node.js modules in browser environment.",
   "main": "index.js",
   "scripts": {
-    "test": "nyc ava && nyc report --reporter=html && nyc report --reporter=lcov > coverage.lcov",
-    "release:beta": "npm test && standard-version --prerelease beta && npm publish --tag beta && git push --follow-tags",
-    "release": "npm test && standard-version && npm publish && git push --follow-tags",
+    "release:beta": "standard-version --prerelease beta && npm publish --tag beta && git push --follow-tags",
+    "release": "standard-version && npm publish && git push --follow-tags",
     "precommit": "lint-staged"
   },
   "repository": {
