@@ -27,7 +27,7 @@ window.node.require('./index.js');
 
 In your `./index.js` you can now use `require` and `module.exports`!
 
-See [Demo](./demo/)
+See [demo](https://vivaxy.github.io/NiB/demo/index.html) and [demo source](./demo).
 
 [npm-version-image]: https://img.shields.io/npm/v/@vivaxy/nib.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@vivaxy/nib

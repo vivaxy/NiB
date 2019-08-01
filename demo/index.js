@@ -3,4 +3,5 @@
  * @author vivaxy
  */
 const add = require('./add');
-alert('add(1, 2) = ' + add(1, 2));
+const appendContent = require('./append-content');
+appendContent('add(1, 2) = ' + add(1, 2));
