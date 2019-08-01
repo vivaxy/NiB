@@ -9,7 +9,7 @@
   window.node.global.process = {};
 
   require.base = '.';
-  require.nodeBuiltInBase = 'node_modules/@vivaxy/nib';
+  require.nodeBuiltInBase = 'https://unpkg.com/browse/@vivaxy/nib';
   require.cache = {};
   const builtInModules = ['fs', 'path'];
 

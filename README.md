@@ -16,9 +16,9 @@ Run Node.js modules in browser environment.
 ```html
 <html>
 <body>
-<script src="./node_modules/@vivaxy/nib/index.js"></script>
+<script src="https://unpkg.com/browse/@vivaxy/nib/index.js"></script>
 <script>
-window.node.init({ nodeBuiltInBase: './node_modules/@vivaxy/nib', base: '.' });
+window.node.init({ base: '.' });
 window.node.require('./index.js');
 </script>
 </body>
@@ -26,6 +26,8 @@ window.node.require('./index.js');
 ```
 
 In your `./index.js` you can now use `require` and `module.exports`!
+
+See [Demo](./demo/)
 
 [npm-version-image]: https://img.shields.io/npm/v/@vivaxy/nib.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@vivaxy/nib
