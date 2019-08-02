@@ -16,7 +16,7 @@ Run Node.js modules in browser environment.
 ```html
 <html>
 <body>
-<script src="https://unpkg.com/browse/@vivaxy/nib/index.js"></script>
+<script src="https://unpkg.com/@vivaxy/nib/index.js"></script>
 <script>
 window.node.init({ base: '.' });
 window.node.require('./index.js');
