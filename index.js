@@ -60,10 +60,10 @@
 
     if (filename.startsWith('.')) {
       // relative path
-      actualFilename = path.join(fromDirName, filename);
+      actualFilename = joinURI(fromDirName, filename);
     } else {
       // require from 'node_modules'
-      actualFilename = path.join(require.nodeModulesBase, filename);
+      actualFilename = joinURI(require.nodeModulesBase, filename);
       if (
         path.extname(actualFilename) !== '.js' &&
         fs.fileExistsSync(actualFilename + '/package.json')
@@ -79,7 +79,7 @@
           (typeof json.browser === 'string' && json.browser) ||
           json.main ||
           (json.files && json.files[0]);
-        actualFilename = path.join(actualFilename, entry);
+        actualFilename = joinURI(actualFilename, entry);
       }
     }
 
@@ -135,7 +135,7 @@
            *   "./test": "./test-shim"
            * }
            */
-          actualFilename = path.join(
+          actualFilename = joinURI(
             packageRootPath,
             json.browser[relativeFilePath]
           );
@@ -250,5 +250,19 @@
       // debugger;
     }
     throw new Error(xhr.statusText);
+  }
+
+  function joinURI(base, ...args) {
+    const path = require.cache.path.exports;
+    if (
+      base.startsWith('http://') ||
+      base.startsWith('https://') ||
+      base.startsWith('//')
+    ) {
+      const url = new URL(base, location.href);
+      return url.origin + path.join(url.pathname, ...args);
+    } else {
+      return path.join(base, ...args);
+    }
   }
 })();
