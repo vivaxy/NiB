@@ -9,7 +9,7 @@
 <div class="console"></div>
 <script type="text/javascript" src="../index.js"></script>
 <script>
-  const nodeModulesBase = location.includes === 'github' ? 'https://unpkg.com' : '../node_modules';
+  const nodeModulesBase = location.href.includes('github') ? 'https://unpkg.com' : '../node_modules';
   window.node.init({ base: '..', nodeBuiltInBase: '..', nodeModulesBase });
   window.node.require('./__tests__/index.js');
 </script>
