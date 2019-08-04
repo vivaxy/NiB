@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/vivaxy/NiB/compare/v0.3.1...v0.4.0) (2019-08-04)
+
+
+### Features
+
+* **options:** :sparkles: add nodeModulesBase option ([2ef0321](https://github.com/vivaxy/NiB/commit/2ef0321))
+
+
+
 ### [0.3.1](https://github.com/vivaxy/NiB/compare/v0.3.0...v0.3.1) (2019-08-04)
 
 
