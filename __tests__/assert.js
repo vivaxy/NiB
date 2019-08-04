@@ -3,11 +3,16 @@
  * @author vivaxy
  */
 
+const $console = document.querySelector('.console');
 module.exports = function assert(condition, message) {
+  let log = '';
   if (!condition) {
-    alert(message);
-    throw new Error(message);
+    log = '❌ ' + message;
   } else {
-    console.log('✅ ' + message);
+    log = '✅ ' + message;
   }
+  const $log = document.createElement('div');
+  $log.textContent = log;
+  $console.appendChild($log);
+  console.log(log);
 };

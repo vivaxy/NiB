@@ -2,7 +2,6 @@
  * @since 20180816 16:40
  * @author vivaxy
  */
-
 const assert = require('./assert.js');
 
 const _ = require('lodash');
@@ -14,19 +13,15 @@ assert(
 const withoutExt = require('./without-ext');
 assert(withoutExt === 1, 'Load local js files without extension.');
 
-require('core-js/es7/observable.js');
+const Observable = require('core-js/features/observable/index.js');
+assert(typeof Observable === 'function', 'Load node modules js files.');
+
 const streamToObservable = require('@samverschueren/stream-to-observable');
 assert(typeof streamToObservable === 'function', 'Load scoped node modules.');
 
-const alignText = require('align-text/index.js');
+const Observable2 = require('core-js/features/observable/index');
 assert(
-  typeof alignText === 'function' && alignText.name === 'alignText',
-  'Load node modules js files.'
-);
-
-const arrDiff = require('arr-diff/index');
-assert(
-  typeof arrDiff === 'function' && arrDiff.name === 'diff',
+  typeof Observable2 === 'function',
   'Load node modules js files without extension.'
 );
 

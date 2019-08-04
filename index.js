@@ -10,15 +10,18 @@
 
   require.base = '.';
   require.nodeBuiltInBase = 'https://unpkg.com/@vivaxy/nib';
+  require.nodeModulesBase = 'https://unpkg.com';
   require.cache = {};
   const builtInModules = ['fs', 'path'];
 
   function init({
     base = require.base,
     nodeBuiltInBase = require.nodeBuiltInBase,
+    nodeModulesBase = require.nodeModulesBase,
   } = {}) {
     require.base = base;
     require.nodeBuiltInBase = nodeBuiltInBase;
+    require.nodeModulesBase = nodeModulesBase;
     builtInModules.forEach(loadBuiltInModules);
   }
 
@@ -26,7 +29,7 @@
     const fileContent = loadFileSync(
       require.nodeBuiltInBase + '/node-built-in/' + moduleName + '.js'
     );
-    const moduleFn = new Function(
+    const moduleFunction = new Function(
       'exports',
       'require',
       'module',
@@ -38,7 +41,7 @@
     }
     require.cache[moduleName] = { exports: {} };
 
-    moduleFn(
+    moduleFunction(
       require.cache[moduleName].exports,
       require,
       require.cache[moduleName],
@@ -60,7 +63,7 @@
       actualFilename = path.join(fromDirName, filename);
     } else {
       // require from 'node_modules'
-      actualFilename = path.join(require.base, 'node_modules', filename);
+      actualFilename = path.join(require.nodeModulesBase, filename);
       if (
         path.extname(actualFilename) !== '.js' &&
         fs.fileExistsSync(actualFilename + '/package.json')

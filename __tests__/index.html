@@ -6,10 +6,11 @@
   <title>Title</title>
 </head>
 <body>
-
+<div class="console"></div>
 <script type="text/javascript" src="../index.js"></script>
 <script>
-  window.node.init({ base: '..', nodeBuiltInBase: '..' });
+  const nodeModulesBase = location.includes === 'github' ? 'https://unpkg.com' : '../node_modules';
+  window.node.init({ base: '..', nodeBuiltInBase: '..', nodeModulesBase });
   window.node.require('./__tests__/index.js');
 </script>
 </body>
