@@ -3,15 +3,15 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <title>Title</title>
+  <title>NiB</title>
 </head>
 <body>
 <div class="console"></div>
 <script type="text/javascript" src="../index.js"></script>
 <script>
   const nodeModulesBase = location.href.includes('github') ? 'https://unpkg.com' : '../node_modules';
-  window.node.init({ base: '..', nodeBuiltInBase: '..', nodeModulesBase });
-  window.node.require('./__tests__/index.js');
+  window.node.init({ base: './__tests__', nodeBuiltInBase: '..', nodeModulesBase });
+  window.node.require('../index.js');
 </script>
 </body>
 </html>

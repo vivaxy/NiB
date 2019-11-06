@@ -2,7 +2,6 @@
  * @since 20180816 16:36
  * @author vivaxy
  */
-
 (function() {
   window.node = { init, require, global: {} };
 
