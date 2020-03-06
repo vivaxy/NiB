@@ -13,13 +13,13 @@ assert(
 const withoutExt = require('./without-ext');
 assert(withoutExt === 1, 'Load local js files without extension.');
 
-const Observable = require('core-js/es7/observable.js');
+const Observable = require('core-js/features/observable/index.js');
 assert(typeof Observable === 'function', 'Load node modules js files.');
 
 const streamToObservable = require('@samverschueren/stream-to-observable');
 assert(typeof streamToObservable === 'function', 'Load scoped node modules.');
 
-const Observable2 = require('core-js/es7/observable');
+const Observable2 = require('core-js/features/observable/index');
 assert(
   typeof Observable2 === 'function',
   'Load node modules js files without extension.'
