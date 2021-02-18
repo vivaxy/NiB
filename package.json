@@ -33,8 +33,7 @@
   "homepage": "https://github.com/vivaxy/NiB#readme",
   "lint-staged": {
     "**/**.{js,json,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "devDependencies": {
