@@ -17,7 +17,9 @@
   "scripts": {
     "release:beta": "standard-version --prerelease beta && npm publish --tag beta && git push --follow-tags",
     "release": "standard-version && npm publish && git push --follow-tags",
-    "precommit": "lint-staged"
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "repository": {
     "type": "git",
@@ -31,14 +33,14 @@
   "homepage": "https://github.com/vivaxy/NiB#readme",
   "lint-staged": {
     "**/**.{js,json,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "devDependencies": {
     "core-js": "^3.1.4",
-    "husky": "^4.0.0",
+    "husky": "5",
     "lint-staged": "^10.0.0",
+    "pinst": "^2.1.4",
     "postcss": "^8.0.0",
     "prettier": "^2.0.0",
     "standard-version": "^9.0.0"
