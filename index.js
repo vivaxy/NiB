@@ -2,7 +2,7 @@
  * @since 20180816 16:36
  * @author vivaxy
  */
-(function() {
+(function () {
   window.node = { init, require, global: {} };
 
   window.node.global.process = {};
@@ -11,7 +11,7 @@
   require.nodeBuiltInBase = 'https://unpkg.com/@vivaxy/nib';
   require.nodeModulesBase = 'https://unpkg.com';
   require.cache = {};
-  const builtInModules = ['fs', 'path'];
+  const builtInModules = ['fs', 'path', 'url', 'util'];
 
   function init({
     base = require.base,
@@ -77,7 +77,9 @@
         const entry =
           (typeof json.browser === 'string' && json.browser) ||
           json.main ||
-          (json.files && json.files[0]);
+          (json.files && json.files[0]) ||
+          // supports lodash.throttle
+          'index.js';
         actualFilename = joinURI(actualFilename, entry);
       }
     }
@@ -173,10 +175,12 @@
     }
 
     function tryAppendExtension(filePath) {
+      const filePathExtName = path.extname(filePath);
       // self > .js > /index.js > .json
       if (
-        path.extname(filePath) === '.js' ||
-        path.extname(filePath) === '.json'
+        filePathExtName === '.js' ||
+        filePathExtName === '.json' ||
+        filePathExtName === '.cjs'
       ) {
         // ok
         return filePath;

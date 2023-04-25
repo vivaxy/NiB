@@ -6,7 +6,10 @@ const assert = require('./assert.js');
 
 const _ = require('lodash');
 assert(
-  _.isEqual(_.chunk(['a', 'b', 'c', 'd'], 2), [['a', 'b'], ['c', 'd']]),
+  _.isEqual(_.chunk(['a', 'b', 'c', 'd'], 2), [
+    ['a', 'b'],
+    ['c', 'd'],
+  ]),
   'Load node modules.'
 );
 
@@ -28,9 +31,9 @@ assert(
 const json = require('./json');
 assert(json === 1, 'Load local json files without extension.');
 
-const argparse = require('argparse/package');
+const coreJS = require('core-js/package');
 assert(
-  argparse.name === 'argparse',
+  coreJS.name === 'core-js',
   'Load node modules json files without extension.'
 );
 
@@ -43,8 +46,14 @@ assert(
   'Load node modules with package.json main field but without extension'
 );
 
-const packageJSONBrowserObject = require('postcss');
+const packageJSONBrowserObject = require('any-observable');
 assert(
   packageJSONBrowserObject,
   'Load node modules with package.json browser field'
+);
+
+const throttle = require('lodash.throttle');
+assert(
+  typeof throttle === 'function',
+  'Load node modules without package.json fields'
 );
